@@ -3,7 +3,9 @@ import requests
 class DolarTodayService(object):
     """Docstring for DolarTodayService. """
 
-    def __init__(self,url = None):
+    def __init__(self,url):
+        if not isinstance(url,str):
+            raise ValueError("Only Strings allowed")
         self.url = url
 
     def getJSON(self):

@@ -7,9 +7,10 @@ from src import dolartodayservice
 @mock.patch("dolartodayservice.requests.get")
 class DolarTodayServiceTest(unittest.TestCase):
     URL_SERVICE_CORRECTA = r"http://api.dolartoday.com/"
+    def get_dolartodayservice(self,url):
+        return dolartodayservice.DolarTodayService(url)
     def setUp(self):
         self.get_mock = None
-        self.dolartodayservice = dolartodayservice.DolarTodayService()
     def set_good_get_mock(self,get_mock):
         data = {
             "_antibloqueo": {
@@ -90,10 +91,21 @@ class DolarTodayServiceTest(unittest.TestCase):
         self.get_mock.return_value = response
     def test_call_dolar_today(self,get_mock):
         self.set_good_get_mock(get_mock)
-        self.dolartodayservice.url = self.URL_SERVICE_CORRECTA
-        self.dolartodayservice.getJSON()
+        service = self.get_dolartodayservice(self.URL_SERVICE_CORRECTA)
+        service.getJSON()
         # Assert DolarTodayService is called with URL correcta
         self.get_mock.assert_called_with(self.URL_SERVICE_CORRECTA)
         # Assert we get the JSON we were looking for
-        self.assertEquals(self.dolartodayservice.getJSON(),
+        self.assertEquals(service.getJSON(),
                 self.get_mock().json())
+    def test_constructor_raises_exception(self, get_mock):
+        self.set_good_get_mock(get_mock)
+        bad_elements = (
+                2, # An int
+                3.1, # A float
+                -3.14, # A negative number
+                ("string",), # A tuple
+                ["a list", 1] #A list
+            )
+        for el in bad_elements:
+            self.assertRaises(ValueError,dolartodayservice.DolarTodayService,el)
